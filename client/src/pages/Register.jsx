@@ -1,15 +1,15 @@
 import React from 'react'
-import {useNavigate,Link} from 'react-router-dom';
-import {useState} from 'react';
+import {Link,useNavigate} from "react-router-dom";
+import {useState} from "react";
+import api from "../api/axios";
 const Register = () => {
-      
     const navigate=useNavigate();
-
-    const[formData,setFormData]=useState({
+    
+    const [formData,setFormData]=useState({
         name:"",
         email:"",
         password:"",
-        role:'candidate'
+        role:"candidate"
     });
 
     const handleChange=(e)=>{
@@ -19,87 +19,61 @@ const Register = () => {
     const handleSubmit=async(e)=>{
         e.preventDefault();
         try{
-            const res=await fetch('http://localhost:5000/api/auth/register',{
-                method:'POST',
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify(formData),
-            });
-            const data=await res.json();
+            const res = await api.post("/auth/register",formData);
 
-            if(res.ok){
-                alert('Registration Successful');
+            localStorage.setItem("token",res.data.token);
+            localStorage.setItem("user",JSON.stringify(res.data.user));
 
-                localStorage.setItem('token',data.token);
-                localStorage.setItem('user',JSON.stringify(data.user));
-                if (data.user.role === 'employer') {
-                    navigate('/dashboard'); 
-                } else {
-                    navigate('/jobs'); 
-                }
-            }else {
-                alert(data.msg);
+            alert("Registration Successful");
+
+            if(res.data.user.role==="employer"){
+                navigate('/dashboard');
+            }else{
+                navigate('/jobs');
             }
         }catch(err){
-            console.log(err);
-            alert('Something went wrong Is the server running ?');
-        }
+        alert(err.response?.data?.message || 'Register failed');
+       }
     }
-
   return (
-    <div className='auth-container'>
-        <div className="auth-card">
-            <h2>Create Account</h2>
-            <p>Join thousands of professionals</p>
-
-            <form onSubmit={handleSubmit}>
-
-                <div className="form-group">
-                    <label>Full Name</label>
-                    <input name='name' type="text" onChange={handleChange} required placeholder="Enter your full name" />
-                 </div>
-
-                 <div className="form-group">
-                    <label>Email Address</label>
-                    <input name='email' type="email"  onChange={handleChange} required placeholder="Enter your email address" />
-                 </div>
-
-                 <div className="form-group">
-                    <label>Password</label>
-                    <input name='password' type="password" onChange={handleChange} required  placeholder="Enter your password" />
-                 </div>
-
-                 <div className="form-group">
-                    <label>I am a:</label>
-                    <div className="role-selector">
-
-                        <div
-                            className={`role-box ${formData.role === 'candidate' ? 'active' : ''}`}
-                            onClick={()=> setFormData({...formData,role:'candidate'})}
-                        >
-                            Job Seeker
-                        </div>
-
-                        <div
-                            className={`role-box ${formData.role==='employer' ? 'active': ''}`}
-                            onClick={()=>setFormData({...formData,role:'employer'})}
-                        >
-                            Employer
-                        </div>
-
+    <div className="container mt-5">
+        <div className="row justify-content-center">
+            <div className="col-md-6">
+                <div className='card shadow-lg p-4'>
+                    <div className="text-center mb-4">
+                        <h2 className="text-primary fw-bold text-center">Create Account</h2>
                     </div>
-                 </div>
-
-                 <button className="btn-primary">Create Account</button>
-            </form>
-
-            <p className="footer-text">
-                Already have an account ? <Link to="/login">Sign in</Link>
-            </p>
+                        
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">Full Name</label>
+                                <input type="text" name="name" className="form-control"  onChange={handleChange} required />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">Email address</label>
+                                <input type="email" name="email" className="form-control" onChange={handleChange} required />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label fw-bold">Password</label>
+                                <input type="password" name="password" className="form-control"  onChange={handleChange} required />
+                            </div>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">I am a:</label>
+                                <select name="role" className="form-select" onChange={handleChange} value={formData.role} required >
+                                    <option value="candidate">Job Seeker</option>
+                                    <option value="employer">Employer</option>
+                                </select>
+                            </div>
+                            <button className="btn btn-primary w-100 py-2 fw-bold">Register</button>
+                        </form>
+                        <p className="text-center mt-3">
+                            Already have an account? <Link to="/login" className="fw-bold">Sign in</Link>
+                        </p>
+                </div>
+            </div>
         </div>
     </div>
   )
 }
 
-export default Register;
+export default Register

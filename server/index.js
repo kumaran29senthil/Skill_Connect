@@ -1,14 +1,16 @@
 const express=require('express');
 const mongoose=require('mongoose');
 const cors=require('cors');
+require('dotenv').config();
 
 const app=express();
 
 app.use(express.json());
 app.use(cors());
-mongoose.connect('mongodb+srv://kumaransenthilarasu:gv4yQfgpLjlsdc9@skillconnect.ko2bcvf.mongodb.net/?appName=SkillConnect')
+
+mongoose.connect(process.env.MONGO_URI)
             .then(()=>{
-                console.log('MongoDB Connected to Cloud');
+                console.log('MongoDB Connected Locally');
             })
             .catch((err)=>{
                 console.log('MongoDB Connection Error:',err);

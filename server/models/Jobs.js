@@ -25,6 +25,10 @@ const JobSchema=new mongoose.Schema({
         type:String,
         default:'Full-Time'
     },
+    description:{
+        type:String,
+        required:true
+    },
     status:{
         type:String,
         default:'Active'
