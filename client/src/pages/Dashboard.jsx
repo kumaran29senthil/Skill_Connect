@@ -15,6 +15,7 @@ const Dashboard = () => {
     const [applicants, setApplicants] = useState([]);
     const [showModal, setShowModal] = useState(false);
 
+    // Effect 1: Read user from localStorage and redirect if not logged in
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         const token = localStorage.getItem('token');
@@ -22,8 +23,13 @@ const Dashboard = () => {
             navigate('/login');
             return;
         }
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+    }, [navigate]);
 
+    // Effect 2: Fetch dashboard data once user is confirmed
+    useEffect(() => {
+        if (!user) return;
         const fetchDashboard = async () => {
             try {
                 const res = await api.get("/jobs/dashboard");
@@ -36,7 +42,7 @@ const Dashboard = () => {
             }
         };
         fetchDashboard();
-    }, [navigate]);
+    }, [user, navigate]);
 
     // NEW: Function to open modal and fetch applicants
     const handleViewApplicants = async (jobId) => {
@@ -45,7 +51,7 @@ const Dashboard = () => {
             const res = await api.get(`/jobs/${jobId}/applicants`);
             setApplicants(res.data);
             setShowModal(true);
-        } catch (err) {
+        } catch (_err) {
             alert("Error fetching applicants");
         }
     };
