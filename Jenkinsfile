@@ -4,7 +4,7 @@ pipeline {
 
     // NodeJS tool configured in Jenkins → Manage Jenkins → Tools
     tools {
-        nodejs 'NodeJS-22'
+        nodejs 'NodeJS 22'
     }
 
     // Environment variables available throughout the pipeline
