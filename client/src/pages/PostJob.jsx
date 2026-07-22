@@ -28,7 +28,7 @@ const PostJob = () => {
             await api.post('/jobs', formData);
             alert('Job Posted Successfully! 🚀');
             navigate('/dashboard');
-        } catch (_err) {
+        } catch {
             alert('Error Posting Job');
         }
     };

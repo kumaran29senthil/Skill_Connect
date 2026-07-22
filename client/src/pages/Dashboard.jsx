@@ -4,28 +4,30 @@ import api from "../api/axios";
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+
+    // Lazy initializer — reads localStorage ONCE on mount, no setUser in effect
+    const [user] = useState(() => {
+        const storedUser = localStorage.getItem('user');
+        return storedUser ? JSON.parse(storedUser) : null;
+    });
+
     const [dashboardData, setDashboardData] = useState({
         stats: { activeJobs: 0, totalApplicants: 0, hired: 0 },
         recentJobs: []
     });
-    
-    // NEW: State for the Modal
-    const [selectedJobId, setSelectedJobId] = useState(null);
+
+    // State for the Modal — only need the setter, not the getter value
+    const [, setSelectedJobId] = useState(null);
     const [applicants, setApplicants] = useState([]);
     const [showModal, setShowModal] = useState(false);
 
-    // Effect 1: Read user from localStorage and redirect if not logged in
+    // Redirect to login if no user or token found
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
         const token = localStorage.getItem('token');
-        if (!storedUser || !token) {
+        if (!user || !token) {
             navigate('/login');
-            return;
         }
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-    }, [navigate]);
+    }, [user, navigate]);
 
     // Effect 2: Fetch dashboard data once user is confirmed
     useEffect(() => {
@@ -51,7 +53,7 @@ const Dashboard = () => {
             const res = await api.get(`/jobs/${jobId}/applicants`);
             setApplicants(res.data);
             setShowModal(true);
-        } catch (_err) {
+        } catch {
             alert("Error fetching applicants");
         }
     };
